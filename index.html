@@ -27,6 +27,33 @@
             width: 100%;
             margin-top: 20px;
         }
+        /* تنسيقات الطباعة */
+        @media print {
+            body * {
+                visibility: hidden; /* إخفاء كل العناصر */
+            }
+            .print-container, .print-container * {
+                visibility: visible; /* إظهار العناصر المخصصة للطباعة */
+            }
+            .print-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                border: 2px solid #000;
+                border-radius: 10px;
+                background-color: #fff;
+                color: #000;
+            }
+            .print-container h3 {
+                color: #007bff;
+                text-align: center;
+            }
+            .print-container p {
+                margin: 10px 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -72,6 +99,7 @@
                             <input type="date" class="form-control" id="idExpiry" required>
                         </div>
                         <button type="submit" class="btn btn-primary">إنشاء PDF</button>
+                        <button type="button" class="btn btn-success" onclick="preparePrint()">طباعة</button>
                     </form>
                 </div>
             </div>
@@ -99,8 +127,10 @@
             // إنشاء ملف PDF
             const doc = new jsPDF();
             doc.setFontSize(18);
+            doc.setTextColor(0, 0, 255); // لون العنوان
             doc.text("معلومات المستخدم", 10, 10);
             doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0); // لون النص
             doc.text(`الاسم الكامل: ${fullName}`, 10, 20);
             doc.text(`رقم الهوية: ${idNumber}`, 10, 30);
             doc.text(`الجنسية: ${nationality}`, 10, 40);
@@ -113,6 +143,42 @@
             // حفظ الملف
             doc.save('معلومات_المستخدم.pdf');
         });
+
+        // إعداد الطباعة
+        function preparePrint() {
+            const fullName = document.getElementById('fullName').value;
+            const idNumber = document.getElementById('idNumber').value;
+            const nationality = document.getElementById('nationality').value;
+            const gender = document.getElementById('gender').value;
+            const dob = document.getElementById('dob').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const idExpiry = document.getElementById('idExpiry').value;
+
+            const printContent = `
+                <div class="print-container">
+                    <h3>معلومات المستخدم</h3>
+                    <p><strong>الاسم الكامل:</strong> ${fullName}</p>
+                    <p><strong>رقم الهوية:</strong> ${idNumber}</p>
+                    <p><strong>الجنسية:</strong> ${nationality}</p>
+                    <p><strong>الجنس:</strong> ${gender}</p>
+                    <p><strong>تاريخ الميلاد:</strong> ${dob}</p>
+                    <p><strong>رقم الجوال:</strong> ${phone}</p>
+                    <p><strong>البريد الإلكتروني:</strong> ${email}</p>
+                    <p><strong>تاريخ انتهاء بطاقة التعريف:</strong> ${idExpiry}</p>
+                </div>
+            `;
+
+            // إنشاء نافذة طباعة
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>طباعة المعلومات</title>');
+            printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
     </script>
 </body>
 </html>
